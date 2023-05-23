@@ -1,7 +1,8 @@
-# -*- coding:utf-8 -*-
-# @Time : 2023-2-23 22:40
-# @Author: Hui Han
-# @File : Sobol-LEAP
+"""
+    本代码封装保存模拟结果功能
+    在保存结果后使用
+"""
+
 import os
 import shutil
 import time
@@ -36,10 +37,9 @@ problem = {
 }
 
 # TODO:导入LEAP蒙特卡洛模拟的结果
-files = os.listdir("E:/1安徽碳中和/3模型计算/LEAP情景组合/sobol分析记录/")
+files = os.listdir("./Results/Simulation")
 # print(files)
-file_name = "E:/1安徽碳中和/3模型计算/LEAP情景组合/sobol分析记录/" + files[-1]
-# file_name = "E:/1安徽碳中和/3模型计算/LEAP情景组合/模型记录/"
+file_name = "./Results/Simulation/" + files[-1]
 print('Reading file:', file_name)
 df_dict = pd.read_excel(file_name, sheet_name=None, header=0)
 data_list = []
@@ -159,7 +159,7 @@ for ax in ax_list:
     ax.set_axisbelow(True)  # Set x-axis grid lines on the bottom layer
 fig.legend(loc='upper center', ncol=4, bbox_to_anchor=(0.5, 0.96))  # Add legend
 fig.subplots_adjust(hspace=0.3)  # Adjust location
-plt.savefig('E:/1安徽碳中和/3模型计算/LEAP情景组合/蒙特卡洛作图/Distribution'
+plt.savefig('./Results/Figures/Distribution'
             + time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime()) + '.jpg', dpi=600)
 plt.show()
 
@@ -197,6 +197,6 @@ ax.legend(loc='upper right')._legend_box.align = "left"
 ax.grid(axis='y', color='gray', linestyle='--')  # Set x-axis grid lines in all graph
 ax.set_axisbelow(True)  # Set x-axis grid lines on the bottom layer
 
-plt.savefig('E:/1安徽碳中和/3模型计算/LEAP情景组合/蒙特卡洛作图/Curve'
+plt.savefig('./Results/Figures/Curve'
             + time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime()) + '.jpg', dpi=600)
 plt.show()

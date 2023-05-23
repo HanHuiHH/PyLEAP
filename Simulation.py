@@ -1,3 +1,7 @@
+"""
+    本代码封装LEAP模型参数修改功能
+    无法单独使用
+"""
 
 import time
 import shutil
@@ -7,95 +11,72 @@ from CalculateAndCheck import CALandCHECK
 start_time = time.time()
 
 
-def ReplaceName(ScenarioName, NameToReplace, i):
-    NameLocation = ScenarioName.index(NameToReplace)
-    ScenarioName = list(ScenarioName)
-    ScenarioName[NameLocation + 3] = str(i)
-    ScenarioName = (''.join(ScenarioName))
-    return ScenarioName
-
-
-def InitialAllRecords():
-    EnergyDataRecord = []
-    EmissionDataRecord = []
-    NetEmissionRecord = []
-    ElecConsDataRecord = []
-    CleanPropRecord = []
-    EnergyIntensityRecord = []
-    CarbonIntensityRecord = []
-    DataRecordNamess = ["EnergyDataRecord", "EmissionDataRecord", "NetEmissionRecord", "ElecConsDataRecord",
-                        "CleanPropRecord", "EnergyIntensityRecord", "CarbonIntensityRecord"]  # 指标名称列表
-    Records = [EnergyDataRecord, EmissionDataRecord, NetEmissionRecord, ElecConsDataRecord, CleanPropRecord,
-               EnergyIntensityRecord, CarbonIntensityRecord]  # 指标对应记录列表
-    AllRecords = dict(zip(DataRecordNamess, Records))  # 创建指标名称和指标对应范围的字典（AllRecords)
-    return AllRecords
-
-
-def test(leap, AllRanges, AllRecords, params, saved_origin_parameter):
-    """LEAP模型循环运行"""
+def simulation(leap, AllRanges, AllRecords, params, saved_origin_parameter):
+    """
+    根据读取的参数对LEAP模型中的参数赋值，
+    :param leap: LEAP对象
+    :param AllRanges: 所有参数的取值范围
+    :param AllRecords: 所有结果参数的记录
+    :param params: 蒙特卡洛的参数
+    :param saved_origin_parameter: 用电节能 和 氢能替代 在LEAP中较难直接更改，需要提前保存好数值
+    :return:
+    """
     """（1）输入参数取值的范围和准备好的情景，进行模拟"""
     NewAreaName = "Simulation0"  # 定义模拟Area的名称为Simulation
-    # leap.Areas.Add(NewAreaName, OriginAreaName)  # 创建一个新的LEAP Area，如果报错，打开任务管理器把所有的LEAP进程都关掉重新试一试
-    # leap.Areas(NewAreaName).Open()
-    # leap.Scenarios("Comprehensive Scenario").Active = True  # 定位到所需要的情景
-    # print("目前打开的Area：", leap.ActiveArea.Name)
-    # print("目前打开的Scenario：", leap.ActiveScenario.Name)  # 如果scenario变成current account，在LEAP里面选择综合情景再直接模拟
-    # ScenarioName = "Gr 0 Ip 0 Es 0 Ep 0 Pg 0 Ig 0 Hr 0 "  # 初始化情景组合名称
-    # TotalSimNum = 1
 
     [IndIndexToChange, IndOriginExpression6th, SerIndexToChange, SerOrrginExpression6th, HyIndexToChange,
      HyOriginExpression5th] = saved_origin_parameter
 
     """（2）具体模拟开始"""
     """    1）不同人均GDP增长率"""
-    GDPRanges = AllRanges.get("GDPRanges")
-    GDPSample = params[0]
+    GDPRanges = AllRanges.get("GDPRanges")  # 读取自己设置的该参数取值范围
+    GDPSample = params[0]  # 读取Monte Carlo参数的取值
     IndexExpression = "Interp(2020, 3.68%, 2021, 8.03%, 2022, 6.5%, "  # 表达式的开头，不同数据可能需要修改
     for Grj in range(1, 9):
         IndexExpression = IndexExpression + str(2020 + 5 * Grj) + ", " \
                           + str('%f' % ((GDPRanges[1][Grj] - GDPRanges[2][Grj]) * GDPSample + GDPRanges[2][Grj])) + "%, "
     IndexExpression = IndexExpression[:-2] + ")"  # 表达式最后不能为“,”，需要替换为“)”
-    leap.Branch(r"Key\地区生产总值\人均GDP增长率").Variable("Activity Level").Expression = IndexExpression  # 需要LEAP中赋值
+    leap.Branch(r"Key\地区生产总值\人均GDP增长率").Variable("Activity Level").Expression = IndexExpression  # 在LEAP中赋值
 
     """    2）不同工业GDP占比"""
-    IndPorpRanges = AllRanges.get("IndPorpRanges")
-    IndSample = params[1]
+    IndPorpRanges = AllRanges.get("IndPorpRanges")  # 读取自己设置的该参数取值范围
+    IndSample = params[1]  # 读取Monte Carlo参数的取值
     IndexExpression = "Growth(Interp("  # 表达式的开头，不同数据可能需要修改
     for Ipj in range(9):
         IndexExpression = IndexExpression + str(2020 + 5 * Ipj) + ", " \
                           + str('%f' % ((IndPorpRanges[1][Ipj] - IndPorpRanges[2][Ipj]) * IndSample + IndPorpRanges[2][Ipj])) + "%, "
     IndexExpression = IndexExpression[:-2] + "))"  # 表达式最后不能为“,”，需要替换为“)”
-    leap.Branch(r"Key\地区生产总值\工业GDP比重").Variable("Activity Level").Expression = IndexExpression  # 需要LEAP中赋值
+    leap.Branch(r"Key\地区生产总值\工业GDP比重").Variable("Activity Level").Expression = IndexExpression  # 在LEAP中赋值
 
     """    3）不同人口增长率"""
-    PopGrowRanges = AllRanges.get("PopGrowRanges")
-    PopSample = params[2]
+    PopGrowRanges = AllRanges.get("PopGrowRanges")  # 读取自己设置的该参数取值范围
+    PopSample = params[2]  # 读取Monte Carlo参数的取值
     IndexExpression = "Growth(Interp("  # 表达式的开头，不同数据可能需要修改
     for Poj in range(9):
         IndexExpression = IndexExpression + str(2020 + 5 * Poj) + ", " \
                           + str('%f' % ((PopGrowRanges[1][Poj] - PopGrowRanges[2][Poj]) * PopSample + PopGrowRanges[2][Poj])) + "%, "
     IndexExpression = IndexExpression[:-2] + "))"  # 表达式最后不能为“,”，需要替换为“)”
-    leap.Branch(r"Key\人口\常住人口").Variable("Activity Level").Expression = IndexExpression  # 需要LEAP中赋值
+    leap.Branch(r"Key\人口\常住人口").Variable("Activity Level").Expression = IndexExpression  # 在LEAP中赋值
 
     """    4）不同用电节能速度"""
-    ElecSaveRange = AllRanges.get("ElecSaveRanges")
-    EsSample = params[3]
+    ElecSaveRange = AllRanges.get("ElecSaveRanges")  # 读取自己设置的该参数取值范围
+    EsSample = params[3]  # 读取Monte Carlo参数的取值
     for Indi in range(len(IndIndexToChange)):
         IndIndex = r"Demand\Industry\ " + str(IndIndexToChange[Indi]) + "\Electricity"
         leap.Branch(IndIndex).Variable("Final Energy Intensity").Expression = IndOriginExpression6th[Indi][:-1] +\
-            " + " + str('%f' % ((ElecSaveRange[1][-1] - ElecSaveRange[2][-1]) * EsSample + ElecSaveRange[2][-1])) + "%)"  # 需要LEAP中赋值
+            " + " + str('%f' % ((ElecSaveRange[1][-1] - ElecSaveRange[2][-1]) * EsSample + ElecSaveRange[2][-1])) + "%)"  # 在LEAP中赋值
     for Seri in range(len(SerIndexToChange)):
         SerIndex = r"Demand\OtherService\ " + str(SerIndexToChange[Seri]) + "\Electricity"
         leap.Branch(SerIndex).Variable("Final Energy Intensity").Expression = SerOrrginExpression6th[Seri][:-1] +\
-            " + " + str('%f' % ((ElecSaveRange[1][-1] - ElecSaveRange[2][-1]) * EsSample + ElecSaveRange[2][-1])) + "%)"  # 需要LEAP中赋值
+            " + " + str('%f' % ((ElecSaveRange[1][-1] - ElecSaveRange[2][-1]) * EsSample + ElecSaveRange[2][-1])) + "%)"  # 在LEAP中赋值
 
     """    5）不同电动车替代率"""
-    EVPropRanges = AllRanges.get("EVPropRanges")
-    EpSample = params[4]
+    EVPropRanges = AllRanges.get("EVPropRanges")  # 读取自己设置的该参数取值范围
+    EpSample = params[4]  # 读取Monte Carlo参数的取值
     IndexExpression = "Interp("  # 表达式的开头，不同数据可能需要修改
     for Epi in range(9):
         EVprop = (EVPropRanges[0][Epi] - EVPropRanges[2][Epi]) * EpSample * 2 + EVPropRanges[2][Epi]
-        if EVprop > 100:
+        if EVprop > 100:  # 电动车占有率不可能超过100%和小于0%
             EVprop = 100
         if EVprop < 0:
             EVprop = 0
@@ -104,49 +85,40 @@ def test(leap, AllRanges, AllRecords, params, saved_origin_parameter):
         #  因为电动车占比超过100%就没办法上升，所以要在这里限制
     IndexExpression = IndexExpression[:-2] + ")"  # 表达式最后不能为“,”，需要替换为“)”
     leap.Branch(r"Demand\Transport\轿车\电动汽车") \
-        .Variable("Activity Level").Expression = IndexExpression  # 需要LEAP中赋值
+        .Variable("Activity Level").Expression = IndexExpression  # 在LEAP中赋值
 
     """    6）不同光伏发电增长速度"""
-    PVGrowRanges = AllRanges.get("PVGrowRanges")
-    PgSample = params[5]
+    PVGrowRanges = AllRanges.get("PVGrowRanges")  # 读取自己设置的该参数取值范围
+    PgSample = params[5]  # 读取Monte Carlo参数的取值
     IndexExpression = "Growth(Interp("  # 表达式的开头，不同数据可能需要修改
     for Pgj in range(9):
         IndexExpression = IndexExpression + str(2020 + 5 * Pgj) + ", " \
                           + str('%f' % ((PVGrowRanges[1][Pgj] - PVGrowRanges[2][Pgj]) * PgSample + PVGrowRanges[2][Pgj])) + "%, "
     IndexExpression = IndexExpression[:-2] + "))"  # 表达式最后不能为“,”，需要替换为“)”
     leap.Branch(r"Transformation\Electricity Generation\Processes\Solar") \
-        .Variable("Exogenous Capacity").Expression = IndexExpression  # 需要LEAP中赋值
+        .Variable("Exogenous Capacity").Expression = IndexExpression  # 在LEAP中赋值
 
     """    7）不同调入电力量"""
-    ImpElecGrowRanges = AllRanges.get("ImpElecGrowRanges")
-    IgSample = params[6]
+    ImpElecGrowRanges = AllRanges.get("ImpElecGrowRanges")  # 读取自己设置的该参数取值范围
+    IgSample = params[6]  # 读取Monte Carlo参数的取值
     IndexExpression = "Interp("  # 表达式的开头，不同数据可能需要修改
     for Igj in range(9):
         IndexExpression = IndexExpression + str(2020 + 5 * Igj) + ", " \
                           + str('%f' % ((ImpElecGrowRanges[1][Igj] - ImpElecGrowRanges[2][Igj]) * IgSample + ImpElecGrowRanges[2][Igj])) + ", "  # 注意这个不是增长率，后面没有%号
     IndexExpression = IndexExpression[:-2] + ")"  # 表达式最后不能为“,”，需要替换为“)”
     leap.Branch(r"Key\其他指标\调入电力功率").Variable(
-        "Activity Level").Expression = IndexExpression  # 需要LEAP中赋值
+        "Activity Level").Expression = IndexExpression  # 在LEAP中赋值
 
     """    8）不同氢能替代速度"""
-    HydrogenRepRange = AllRanges.get("HydrogenRepRanges")
-    HrSample = params[7]
+    HydrogenRepRange = AllRanges.get("HydrogenRepRanges")  # 读取自己设置的该参数取值范围
+    HrSample = params[7]  # 读取Monte Carlo参数的取值
     for Indi in range(len(HyIndexToChange)):
         Index = r"Demand\Industry\ " + str(HyIndexToChange[Indi]) + "\Hydrogen"
         leap.Branch(Index).Variable("Final Energy Intensity").Expression = HyOriginExpression5th[Indi] + " * " +\
-            str('%f' % ((HydrogenRepRange[1][-1] - HydrogenRepRange[2][-1]) * HrSample + HydrogenRepRange[2][-1])) + "%"  # 需要LEAP中赋值
-    """最终 计算步骤，包含在最后一层的for循环之中"""
+            str('%f' % ((HydrogenRepRange[1][-1] - HydrogenRepRange[2][-1]) * HrSample + HydrogenRepRange[2][-1])) + "%"  # 在LEAP中赋值
+
+    """（3）最终 计算步骤"""
     CALandCHECK(leap, NewAreaName, AllRecords)
 
     return AllRecords
 
-
-if __name__ == '__main__':
-    leap = client.DispatchEx('leap.LEAPApplication')  # 启动独立的进程
-    leap.Visible = 0  # 0表示在后台以进程方式运行，不显示软件界面，1表示显示软件界面并可能需要操作
-    MySimuCount = [3, 3, 3, 3, 3, 3, 3, 3]  # TODO:设置每个parameter的变化情况,不变就设置成1，变化的设置成变化维度
-    # MySimuCount = [1, 1, 1, 1, 1, 1, 3]  # TODO:设置每个parameter的变化情况,不变就设置成1，变化的设置成变化维度
-
-    ResultPath = "E:/1安徽碳中和/3模型计算/LEAP情景组合/模型记录/模型记录" + \
-                 time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime()) + ".xlsx"  # TODO：修改结果保存路径
-    shutil.copyfile(r"E:\1安徽碳中和\3模型计算\LEAP情景组合\空白参数记录.xlsx", ResultPath)  # TODO：空白参数记录文件地址

@@ -4,6 +4,9 @@ Welcome to PyLEAP - Python Programming for LEAP API. This project is for further
 
 In the sample code, we use [SALib](https://github.com/SALib/SALib) to do Monte Carlo simulation and Sobol' global sensitivity analysis.
 
+The code now just have annotation in Chinese.
+
+中文版README请打开**README(中文).md**。
 
 
 ## LEAP and its API
@@ -29,22 +32,27 @@ On a system comprising an i7 8700 processor, 16GB of RAM, and Python 3.9.16, eac
 
 ### Result Processing
 
-After iterations, the results will be saved. If you need a big sample size (running time is more than 10 hours), try to take it apart into several parts, and merge results of these parts. The result processing will not cost a long time.
+After iterations, the results will be saved. If you need a big sample size (running time is more than 10 hours), try to take it apart into several parts, and merge results of these parts. The result processing will not cost long time.
 
 
 ## Code Structure
 
-### Get Value from Excel
+### Calculate and Check (CalculateAndCheck.py)
 
-Mean value and standard variation are the key parameters of normal distribution, and they can be edited in the Excel. This code is to import value.
+This code calls calculate function in LEAP software, and print several key values (such as energy intensity decreasing rate in 5 years) in your console. You can just use this code to check key values in your LEAP area.
 
-### Calculate and Check
+### Import from Excel (ImportFromExcel.py)
 
-This code calls calculate function in LEAP software, and print several key values.
+This code is to import value from excel file in the **ImportExcel folder**. The simulation need to define distribution of key parameters, so that samples can be generated. Mean value and standard variation are the key parameters of normal distribution, and they can be edited in this excel file. 
 
-### Monte Carlo Simulation
-This code integrated former two codes into Monte Carlo simulation by SALib Library. Results are saved.
+### Monte Carlo Simulation (MonteCarlo-Simulation.py)
+This code integrated former two codes into Monte Carlo simulation by SALib Library. Results are saved in the Result folder.
 
-### Sobol' GSA
-This code use the results of Monte Carlo to do Sobol' global sensitivity analysis.
+### Monte Carlo Simulation Analysis (MonteCarlo-Analysis.py)
+This code use the results of Monte Carlo to do analysis result distribution, and draw some pictures.
 
+### Sobol' GSA (Sobol'GSA.py)
+This code use the results of Monte Carlo to do Sobol' global sensitivity analysis, and draw some pictures.
+
+### Bug Fix By Initialize LEAP (BugFIX.py)
+There may occur some errors if you abort running and rerun codes. This code will fix this type of error.

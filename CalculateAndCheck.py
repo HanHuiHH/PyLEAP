@@ -1,15 +1,17 @@
-# -*- coding:utf-8 -*-
-# @Time : 2022-05-16 11:11
-# @Author: Hui Han
-# @File : CalculateAndCheck.py
-
-# 本代码封装了单次leap模型计算和查看结果的所有操作
+"""
+    本代码封装了单次leap模型计算和查看结果的所有操作
+    可以单独使用
+"""
 
 import time
 import win32com.client as client
 
 
 def InitialAllRecords():
+    """
+    初始化所有需要保存的参数
+    :return: 参数保存列表
+    """
     EnergyDataRecord = []
     EmissionDataRecord = []
     NetEmissionRecord = []
@@ -26,8 +28,12 @@ def InitialAllRecords():
 
 
 def CalCleanProp(leap, Year):
-    """输入为leap模型、查询年份，输出清洁能源比例
-    用于计算清洁能源占比，计算将花费较长时间"""
+    """
+    用于计算清洁能源占比，计算将花费较长时间
+    :param leap: leap对象
+    :param Year: 查询年份
+    :return: 清洁能源占比
+    """
     CleanTypes = ["Biogas", "Wind", "Solar", "Hydro", "Nuclear", "Hydrogen", "Municipal Solid Waste", "Biomass",
                   "Import Clean Electricity"]  # 列出所有种类的清洁能源
     CleanConsumption = 0  # 用于累计清洁能源总量
@@ -44,11 +50,20 @@ def CalCleanProp(leap, Year):
 
 def CALandCHECK(leap, NewAreaName, AllRecords,
                 check_energy_intensity_only=True,
-                calculate_every_year=False,
-                save_more_indicators=False,
+                calculate_every_year=True,
+                save_more_indicators=True,
                 print_to_console=False):
-    """输入：LEAP模型，新Area名称，情景名称，定义的AllRecord字典
-    函数用法：输入Area名称和自定义情景名称，显示出关键参数"""
+    """
+    计算LEAP，查看数据
+    :param leap: LEAP模型
+    :param NewAreaName: 新Area名称
+    :param AllRecords: 参数保存列表
+    :param check_energy_intensity_only: 是否只看能源强度下降率
+    :param calculate_every_year: 是否计算每年的值
+    :param save_more_indicators: 保存所有参数
+    :param print_to_console: 在console中显示结果
+    :return: Nothing
+    """
     time1 = time.time()
     leap.Calculate()
     leap.Areas(NewAreaName).Open()  # 把LEAP软件窗口定位到Analysis界面，若定位在Results则可能会报错
@@ -157,7 +172,7 @@ def CALandCHECK(leap, NewAreaName, AllRecords,
 
     """如果需要统计 电力消费、清洁能源比例、五年下降率 的数据的话，请把 save_more_indicators 设为True ，否则不统计，加快计算速度"""
     if save_more_indicators:
-        for i in range(9):  # 电力消费和清洁能源比重计算时间较久，所以不计算每年的，从2020至2060共8个5年，9个时间点
+        for i in range(9):  # 电力消费和清洁能源比重计算时间较久(主要是因为LEAP读取时间久），所以不计算每年的，从2020至2060共8个5年，9个时间点
             ElecConsData.append(
                 leap.Branch("Demand").Variable(
                     "Energy Demand Final Units"

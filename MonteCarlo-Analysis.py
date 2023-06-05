@@ -55,11 +55,11 @@ for df in df_dict:
     Select the data
 '''
 df = data_list[1]  # Get CO2 emission data
-df_peak_emission = pd.Series(df.max(axis=1))
+df_peak_emission = pd.Series(df.max(axis=1)) / 100
 df_peak_year = pd.Series(df.idxmax(axis=1))
 
 df = data_list[2]  # Get net GHG emission data
-df_2060_emission = pd.Series(df[2060])
+df_2060_emission = pd.Series(df[2060]) / 100
 neutral_year = []
 for index, row in df.iterrows():
     if row.iloc[-1] > 0:
@@ -86,18 +86,18 @@ for i in range(2):  # number in range() must be integer
     1. Draw the first picture, peak value and fitting normal curve
 '''
 # Draw hist
-ax_list[0].hist(df_peak_emission, density=True, color='#607c8e', edgecolor='black', range=(36500, 41500), bins=20,
+ax_list[0].hist(df_peak_emission, density=True, color='#607c8e', edgecolor='black', range=(365, 415), bins=20,
                 hatch='//', rwidth=0.9, label='Histogram of result distribution')  # Draw histogram
 # Draw normal distribution
 mu = np.mean(df_peak_emission)  # Mean value
 sigma = np.std(df_peak_emission)  # Standard Variation
-bins = np.arange(36500, 41500, 1)  # Used to draw line. The smaller 3rd value, the more accurate the curve
+bins = np.arange(365, 415, 1)  # Used to draw line. The smaller 3rd value, the more accurate the curve
 norm_line = norm.pdf(bins, mu, sigma)  # Draw line
 ax_list[0].plot(bins, norm_line, 'r--', label="Fitted normal distribution curve")  # Draw line
 # Set other parameters
-ax_list[0].set_xticks(range(36500, 41501, 1000))  # Set X-axis points, range(first, last, interval)
+ax_list[0].set_xticks(range(365, 416, 10))  # Set X-axis points, range(first, last, interval)
 ax_list[0].set_title('(a) Energy-related CO${_2}$ emission in carbon peak')
-ax_list[0].set_xlabel('CO${_2}$ emission')
+ax_list[0].set_xlabel('CO${_2}$ emission (Mt)')
 ax_list[0].set_ylabel('Proportion')
 ax_list[0].yaxis.set_major_formatter(ticker.PercentFormatter(xmax=1, decimals=2))
 
@@ -105,18 +105,18 @@ ax_list[0].yaxis.set_major_formatter(ticker.PercentFormatter(xmax=1, decimals=2)
     2. Draw the second picture, emission value in 2060 and fitting normal curve
 '''
 # Draw hist
-ax_list[1].hist(df_2060_emission, density=True, color='#607c8e', edgecolor='black', range=(-10000, 15000), bins=20,
+ax_list[1].hist(df_2060_emission, density=True, color='#607c8e', edgecolor='black', range=(-100, 150), bins=20,
                 hatch='//', rwidth=0.9)  # Draw histogram
 # Draw normal distribution
 mu = np.mean(df_2060_emission)  # Mean value
 sigma = np.std(df_2060_emission)  # Standard Variation
-bins = np.arange(-10000, 15000, 1)  # Used to draw line. The smaller 3rd value, the more accurate the curve
+bins = np.arange(-100, 150, 1)  # Used to draw line. The smaller 3rd value, the more accurate the curve
 norm_line = norm.pdf(bins, mu, sigma)  # Draw line
 ax_list[1].plot(bins, norm_line, 'r--')  # Draw line
 # Set other parameters
-ax_list[1].set_xticks(range(-10000, 15001, 5000))  # Set X-axis points, range(first, last, interval)
+ax_list[1].set_xticks(range(-100, 151, 50))  # Set X-axis points, range(first, last, interval)
 ax_list[1].set_title('(b) Net GHG emission in 2060')
-ax_list[1].set_xlabel('Net GHG emission')
+ax_list[1].set_xlabel('Net GHG emission (Mt CO${_2}$e)')
 ax_list[1].set_ylabel('Proportion')
 ax_list[1].yaxis.set_major_formatter(ticker.PercentFormatter(xmax=1, decimals=3))
 
@@ -166,9 +166,12 @@ plt.show()
 '''
     Draw curves
 '''
-fig = plt.figure(figsize=(10, 8))
+fig = plt.figure(figsize=(12, 8))
 ax = fig.add_subplot()
-array_curve = df.drop(df.columns[0], axis=1).to_numpy()
+history_data = [359.23, 391.6881, 424.15, 439.88795, 455.63, 458.6277496, 461.63, 464.4368663, 467.24, 473.34,  480]
+history_year = [i for i in range(2010, 2021)]
+ax.plot(history_year, history_data, 'o-', label="History", color='green')
+array_curve = df.drop(df.columns[0], axis=1).to_numpy() / 100
 years = list(range(2020, 2020 + array_curve.shape[1]))
 ax.plot(years, np.mean(array_curve, axis=0), label="Mean", color='black')
 std_dev = np.std(array_curve, axis=0)  # Calculate std
@@ -192,7 +195,7 @@ ax.fill_between(years,
                 label=f"All results")
 
 ax.set_xlabel("Year")
-ax.set_ylabel("Net GHG emission")
+ax.set_ylabel("Net GHG emission (Mt CO${_2}$e)")
 ax.legend(loc='upper right')._legend_box.align = "left"
 ax.grid(axis='y', color='gray', linestyle='--')  # Set x-axis grid lines in all graph
 ax.set_axisbelow(True)  # Set x-axis grid lines on the bottom layer

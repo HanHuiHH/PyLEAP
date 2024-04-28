@@ -34,9 +34,9 @@ problem = {
 
 
 # TODO:导入LEAP蒙特卡洛模拟的结果
-files = os.listdir("E:/1安徽碳中和/3模型计算/LEAP情景组合/sobol分析记录/")
+files = os.listdir("./Results/Simulation")
 # print(files)
-file_name = "E:/1安徽碳中和/3模型计算/LEAP情景组合/sobol分析记录/" + files[-1]
+file_name = "./Results/Simulation/" + files[-1]
 # file_name = "E:/1安徽碳中和/3模型计算/LEAP情景组合/模型记录/"
 print('Reading file:', file_name)
 df_dict = pandas.read_excel(file_name, sheet_name=None, header=0)
@@ -74,9 +74,9 @@ def save_sobol_result(sobol_indices):
     S2_2060_conf = sobol_indices[-1]['S2_conf']
 
     # TODO：修改sobol分析参数结果保存路径
-    ResultPath = "E:/1安徽碳中和/3模型计算/LEAP情景组合/sobol分析参数结果/sobol分析参数结果" + \
+    ResultPath = "./Results/SobolResults/SobolResults" + \
                  time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime()) + ".xlsx"
-    shutil.copyfile("E:/1安徽碳中和/3模型计算/LEAP情景组合/sobol分析空白参数结果.xlsx", ResultPath)  # TODO：空白参数记录文件地址
+    shutil.copyfile("ImportExcel/3 Sobol Results (blank).xlsx", ResultPath)
     wb = op.load_workbook(filename=ResultPath)
     ws = wb["ST"]
     for i in range(42):
@@ -234,8 +234,7 @@ for ax in ax_list[2:]:
 
 fig.legend(loc='upper center', ncol=4, bbox_to_anchor=(0.5, 1.01), fontsize=16)  # Add legend
 fig.subplots_adjust(hspace=0.3, wspace=0.25)  # Adjust location
-plt.savefig('E:/1安徽碳中和/3模型计算/LEAP情景组合/sobol分析作图/ST'
-            + time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime()) + '.jpg', dpi=600)
+plt.savefig('./Results/Figures/ST' + time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime()) + '.jpg', dpi=600)
 plt.show()
 
 #

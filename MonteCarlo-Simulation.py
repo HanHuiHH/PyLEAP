@@ -24,7 +24,7 @@ leap = client.DispatchEx('leap.LEAPApplication')  # 启动独立的进程
 """
     设置模拟参数
 """
-OriginAreaName = "20230409安徽省碳排放总模型"
+OriginAreaName = "20231108安徽省碳排放总模型"
 N_value = 2 ** 0  # 敏感性分析的N
 leap.Visible = 0  # 0表示在后台以进程方式运行，不显示软件界面，1表示显示软件界面并可能需要操作
 ImportPath = r"./ImportExcel/1 Parameters.xlsx"  # 参数读取路径

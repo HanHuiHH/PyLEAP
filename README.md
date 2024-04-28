@@ -9,6 +9,27 @@ The code now just have annotation in Chinese.
 中文版README请打开**README(中文).md**。
 
 
+## Quick Start
+
+### Install
+    git clone https://github.com/HanHuiHH/PyLEAP.git
+
+### Run the LEAP area
+Open the LEAP area in folder ./LEAP Area, and keep it open. 
+
+Make sure your version of LEAP is 2020.1.0.91, and support to run script. 
+More information can be found in the [website of LEAP](https://leap.sei.org)
+
+### Run the MonteCarlo-simulation in Python 
+The LEAP software will hide and run automatically in the background. 
+Check the progress bar, each run could be approximately 5 seconds.
+
+### Analyse the results
+Run the MonteCarlo-Analysis and Sobol'GSA-Analysis to analyse the results created by MCS.
+
+You may need to modify the file path in these Python file, or merge results created by several MCS.
+
+
 ## LEAP and its API
 
 ### LEAP software
@@ -38,12 +59,13 @@ After iterations, the results will be saved. If you need a big sample size (runn
 ## Code Structure
 
 ### Calculate and Check (CalculateAndCheck.py)
-
 This code calls calculate function in LEAP software, and print several key values (such as energy intensity decreasing rate in 5 years) in your console. You can just use this code to check key values in your LEAP area.
 
 ### Import from Excel (ImportFromExcel.py)
-
 This code is to import value from excel file in the **ImportExcel folder**. The simulation need to define distribution of key parameters, so that samples can be generated. Mean value and standard variation are the key parameters of normal distribution, and they can be edited in this excel file. 
+
+### Save to Excel (SaveToExcel.py)
+Create function to save the results to xlsx.
 
 ### Monte Carlo Simulation (MonteCarlo-Simulation.py)
 This code integrated former two codes into Monte Carlo simulation by SALib Library. Results are saved in the Result folder.
@@ -51,8 +73,11 @@ This code integrated former two codes into Monte Carlo simulation by SALib Libra
 ### Monte Carlo Simulation Analysis (MonteCarlo-Analysis.py)
 This code use the results of Monte Carlo to do analysis result distribution, and draw some pictures.
 
-### Sobol' GSA (Sobol'GSA.py)
+### Sobol' GSA (Sobol'GSA-Analysis.py)
 This code use the results of Monte Carlo to do Sobol' global sensitivity analysis, and draw some pictures.
 
 ### Bug Fix By Initialize LEAP (BugFIX.py)
 There may occur some errors if you abort running and rerun codes. This code will fix this type of error.
+
+### Once-A-Time-Simulation of LEAP (Once-A-Time-Simulation.py)
+A simple Once-A-Time-Simulation to compare the results with global sensitivity analysis.
